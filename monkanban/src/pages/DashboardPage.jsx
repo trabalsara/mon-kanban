@@ -11,10 +11,9 @@ export default function DashboardPage({ session }) {
 
   async function fetchUsers() {
     const { data, error } = await supabase
-      .from('monkanban')
-      .select('*')
-      .order('created_at', { ascending: false });
-
+      .from('users')        // ✅ corrigé : était 'monkanban'
+      .select('*');
+    console.log('users:', data, error);
     if (!error) setUsers(data || []);
     setLoading(false);
   }
@@ -24,13 +23,12 @@ export default function DashboardPage({ session }) {
   }, []);
 
   useEffect(() => {
-    if (!session?.user?.id) return;
-
+    // ✅ On prend le premier board disponible sans filtrer par owner_id
     supabase.from('boards')
       .select('id')
-      .eq('owner_id', session.user.id)
       .limit(1)
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        console.log('board:', data, error);
         if (data?.[0]) setBoardId(data[0].id);
       });
   }, [session]);
@@ -45,24 +43,17 @@ export default function DashboardPage({ session }) {
         <h1>🧠 KanbanRT — Dashboard</h1>
         <div>
           <span style={{ marginRight: '1rem' }}>{session?.user?.email}</span>
-          <button
-            onClick={handleLogout}
-            style={{ background: 'white', color: '#1A8C82', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}
-          >
+          <button onClick={handleLogout} style={{ background: 'white', color: '#1A8C82', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>
             Déconnexion
           </button>
         </div>
       </header>
 
       <main style={{ padding: '2rem' }}>
-        {/* Navigation par onglets */}
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
           {[['tasks', '🗂 Tâches'], ['users', '👥 Utilisateurs']].map(([key, label]) => (
             <button key={key} onClick={() => setTab(key)} style={{
-              padding: '0.5rem 1rem',
-              borderRadius: '6px',
-              border: 'none',
-              cursor: 'pointer',
+              padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', cursor: 'pointer',
               background: tab === key ? '#1A8C82' : '#E2E8F0',
               color: tab === key ? 'white' : '#1E293B',
               fontWeight: tab === key ? 700 : 400,
@@ -71,14 +62,8 @@ export default function DashboardPage({ session }) {
         </div>
 
         {tab === 'tasks' && boardId && <TaskList boardId={boardId} />}
-        
-        {tab === 'tasks' && !boardId && (
-          <p style={{ color: '#94A3B8' }}>Aucun tableau trouvé. Créez-en un via SQL Editor.</p>
-        )}
-        
-        {tab === 'users' && (
-          loading ? <p>Chargement...</p> : <UserTable users={users} onRefresh={fetchUsers} />
-        )}
+        {tab === 'tasks' && !boardId && <p style={{ color: '#94A3B8' }}>Chargement du tableau...</p>}
+        {tab === 'users' && (loading ? <p>Chargement...</p> : <UserTable users={users} onRefresh={fetchUsers} />)}
       </main>
     </div>
   );
