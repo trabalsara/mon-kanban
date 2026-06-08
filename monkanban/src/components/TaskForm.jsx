@@ -41,7 +41,33 @@ export default function TaskForm({ boardId, onCreated }) {
 
     setLoading(false);
     if (error) { setError(error.message); return; }
-    
+
+    // Envoi d'email si une échéance est définie
+    if (dueDate) {
+      try {
+        const formattedDate = new Date(dueDate).toLocaleDateString('fr-FR', {
+          day: '2-digit', month: 'long', year: 'numeric'
+        });
+
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: [user.email],
+            subject: `Tâche créée : ${title}`,
+            html: `
+              <h2>Tâche créée avec succès</h2>
+              <p><strong>Titre :</strong> ${title}</p>
+              <p><strong>Priorité :</strong> ${priority}</p>
+              <p><strong>Échéance :</strong> ${formattedDate}</p>
+            `
+          })
+        });
+      } catch (err) {
+        console.error('Erreur envoi email:', err);
+      }
+    }
+
     // Réinitialiser le formulaire
     setTitle(''); setDescription(''); setStatus('todo');
     setPriority('medium'); setCategoryId(''); setDueDate('');
