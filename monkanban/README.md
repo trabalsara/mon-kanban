@@ -1,16 +1,86 @@
-# React + Vite
+# Projet Kanban R2.09
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Description
 
-Currently, two official plugins are available:
+Ce projet est une application web de type Kanban développée dans le cadre du module R2.09.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Elle permet de gérer des tâches avec un système de tableaux, catégories, priorités et statuts, ainsi qu’un système d’authentification utilisateur.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Fonctionnalités
 
-## Expanding the ESLint configuration
+### 🔐 Authentification
+- Inscription / connexion des utilisateurs
+- Protection des routes (dashboard sécurisé)
+- Gestion de session avec Supabase Auth
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 👥 Utilisateurs
+- Affichage des utilisateurs inscrits
+- Création et suppression d’utilisateurs (CRUD)
+- Gestion des profils
+
+### 🗂 Gestion des tâches (Kanban)
+- Création de tâches
+- Suppression de tâches
+- Statuts : à faire / en cours / validation / terminé
+- Priorités : basse / moyenne / haute
+- Catégorisation des tâches
+- Date d’échéance
+
+### 👤 Profil utilisateur
+- Modification du nom complet
+- Changement du mot de passe
+- Upload d’image de profil (avatar)
+
+---
+
+## 🛠 Technologies utilisées
+
+- React (Vite)
+- Supabase (Backend as a Service)
+  - PostgreSQL (base de données)
+  - Authentification
+  - Storage (images)
+- React Router DOM
+- Vercel (déploiement)
+
+---
+
+## 🗄 Base de données (Supabase)
+
+Le projet utilise plusieurs tables :
+
+- `profiles` → utilisateurs
+- `tasks` → tâches Kanban
+- `boards` → tableaux
+- `categories` → catégories de tâches
+
+---
+
+## 👥 Travail en binôme
+
+Ce projet a été réalisé en binôme :
+
+- **Alya :**
+  Développement frontend (React)
+  Création des composants, pages, interface utilisateur
+
+- **Sara :**
+  Configuration backend (Supabase)
+  Base de données, authentification, storage, SQL
+
+---
+
+## 🌐 Lien du projet
+
+- GitHub : https://github.com/trabalsara/mon-kanban
+- Vercel : 
+
+---
+
+## Installation locale
+
+```bash
+npm install
+npm run dev
