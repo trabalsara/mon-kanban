@@ -41,6 +41,7 @@ export default function TaskCard({ task, onDelete }) {
       boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
       transition: 'transform 0.15s'
     }}>
+      
       {/* En-tête : titre & bouton supprimer */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
         <h3 style={{ margin: 0, fontSize: '1rem', color: '#1E293B' }}>
@@ -61,6 +62,7 @@ export default function TaskCard({ task, onDelete }) {
 
       {/* Badges */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.75rem', alignItems: 'center' }}>
+        
         {/* Statut */}
         <span style={{ fontSize: '0.75rem', fontWeight: 600, color: status.color, background: 'rgba(0,0,0,0.05)', padding: '0.2rem 0.5rem', borderRadius: '999px' }}>
           {status.label}
@@ -77,6 +79,25 @@ export default function TaskCard({ task, onDelete }) {
             🏷 {task.categories.name}
           </span>
         )}
+
+        {/* ⭐ TAGS (fonctionnalité libre ajoutée) */}
+        {task.tags && task.tags.length > 0 && (
+          task.tags.map((tag, index) => (
+            <span
+              key={index}
+              style={{
+                fontSize: '0.75rem',
+                padding: '0.2rem 0.5rem',
+                borderRadius: '999px',
+                background: '#E0F2FE',
+                color: '#0369A1',
+                fontWeight: 600
+              }}
+            >
+              # {tag}
+            </span>
+          ))
+        )}
         
         {/* Date d'échéance */}
         {dueLabel && (
@@ -84,6 +105,7 @@ export default function TaskCard({ task, onDelete }) {
             📅 {isOverdue ? '⚠ ' : ''}{dueLabel}
           </span>
         )}
+
       </div>
     </div>
   );
