@@ -13,6 +13,7 @@ export default function TaskForm({ boardId, onCreated }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Charger les catégories au montage
   useEffect(() => {
     supabase.from('categories').select('*').then(({ data }) => {
       setCategories(data || []);
@@ -22,12 +23,7 @@ export default function TaskForm({ boardId, onCreated }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
-
-    if (!title.trim()) {
-      setError('Le titre est obligatoire.');
-      return;
-    }
-
+    if (!title.trim()) { setError('Le titre est obligatoire.'); return; }
     setLoading(true);
 
     const { data: { user } } = await supabase.auth.getUser();
@@ -40,22 +36,17 @@ export default function TaskForm({ boardId, onCreated }) {
       board_id: boardId,
       category_id: categoryId || null,
       due_date: dueDate || null,
-      created_by: user?.id,
+      created_by: user.id,
     }]);
 
     setLoading(false);
+    if (error) { setError(error.message); return; }
 
-    if (error) {
-      setError(error.message);
-      return;
-    }
-
+    // Envoi d'email si une échéance est définie
     if (dueDate) {
       try {
         const formattedDate = new Date(dueDate).toLocaleDateString('fr-FR', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric'
+          day: '2-digit', month: 'long', year: 'numeric'
         });
 
         await fetch('/api/send-email', {
@@ -77,13 +68,9 @@ export default function TaskForm({ boardId, onCreated }) {
       }
     }
 
-    setTitle('');
-    setDescription('');
-    setStatus('todo');
-    setPriority('medium');
-    setCategoryId('');
-    setDueDate('');
-
+    // Réinitialiser le formulaire
+    setTitle(''); setDescription(''); setStatus('todo');
+    setPriority('medium'); setCategoryId(''); setDueDate('');
     onCreated();
   }
 
@@ -91,23 +78,11 @@ export default function TaskForm({ boardId, onCreated }) {
     <form onSubmit={handleSubmit} style={{ background: 'white', padding: '1.5rem', borderRadius: '10px', marginBottom: '1.5rem', border: '1px solid #E2E8F0' }}>
       <h3 style={{ marginTop: 0, color: '#1A8C82' }}>➕ Nouvelle tâche</h3>
       {error && <p style={{ color: '#DC2626' }}>{error}</p>}
-
-      <input
-        placeholder='Titre de la tâche *'
-        value={title}
-        onChange={e => setTitle(e.target.value)}
-        required
-        style={{ ...inputStyle, width: '100%', marginBottom: '0.75rem' }}
-      />
-
-      <textarea
-        placeholder='Description (optionnelle)'
-        value={description}
-        onChange={e => setDescription(e.target.value)}
-        rows={3}
-        style={{ ...inputStyle, width: '100%', marginBottom: '0.75rem', resize: 'vertical' }}
-      />
-
+      
+      <input placeholder='Titre de la tâche *' value={title} onChange={e => setTitle(e.target.value)} required style={{ ...inputStyle, width: '100%', marginBottom: '0.75rem' }} />
+      
+      <textarea placeholder='Description (optionnelle)' value={description} onChange={e => setDescription(e.target.value)} rows={3} style={{ ...inputStyle, width: '100%', marginBottom: '0.75rem', resize: 'vertical' }} />
+      
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.5rem', marginBottom: '0.75rem' }}>
         <div>
           <label style={labelStyle}>Statut</label>
@@ -118,7 +93,6 @@ export default function TaskForm({ boardId, onCreated }) {
             <option value='done'>✅ Terminée</option>
           </select>
         </div>
-
         <div>
           <label style={labelStyle}>Priorité</label>
           <select value={priority} onChange={e => setPriority(e.target.value)} style={inputStyle}>
@@ -127,7 +101,6 @@ export default function TaskForm({ boardId, onCreated }) {
             <option value='high'>🔴 Haute</option>
           </select>
         </div>
-
         <div>
           <label style={labelStyle}>Catégorie</label>
           <select value={categoryId} onChange={e => setCategoryId(e.target.value)} style={inputStyle}>
@@ -137,13 +110,12 @@ export default function TaskForm({ boardId, onCreated }) {
             ))}
           </select>
         </div>
-
         <div>
           <label style={labelStyle}>Échéance</label>
           <input type='date' value={dueDate} onChange={e => setDueDate(e.target.value)} style={inputStyle} />
         </div>
       </div>
-
+      
       <button type='submit' disabled={loading} style={{ background: '#1A8C82', color: 'white', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.95rem' }}>
         {loading ? 'Enregistrement...' : 'Créer la tâche'}
       </button>
@@ -151,19 +123,5 @@ export default function TaskForm({ boardId, onCreated }) {
   );
 }
 
-const inputStyle = {
-  padding: '0.5rem 0.75rem',
-  border: '1px solid #CBD5E1',
-  borderRadius: '6px',
-  fontSize: '0.9rem',
-  width: '100%',
-  boxSizing: 'border-box'
-};
-
-const labelStyle = {
-  display: 'block',
-  marginBottom: '0.3rem',
-  fontSize: '0.8rem',
-  fontWeight: 600,
-  color: '#64748B'
-};
+const inputStyle = { padding: '0.5rem 0.75rem', border: '1px solid #CBD5E1', borderRadius: '6px', fontSize: '0.9rem', width: '100%', boxSizing: 'border-box' };
+const labelStyle = { display: 'block', marginBottom: '0.3rem', fontSize: '0.8rem', fontWeight: 600, color: '#64748B' };
