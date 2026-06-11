@@ -75,7 +75,7 @@ Ce projet a été réalisé en binôme :
 ## 🌐 Lien du projet
 
 - GitHub : https://github.com/trabalsara/mon-kanban
-- Vercel : 
+- Vercel : mon-kanban-git-main-saras-projects-ce0ef55a.vercel.app
 
 ---
 
