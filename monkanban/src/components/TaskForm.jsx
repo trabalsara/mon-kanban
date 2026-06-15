@@ -12,6 +12,7 @@ export default function TaskForm({ boardId, onCreated }) {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [tags, setTags] = useState('');
 
   // Charger les catégories au montage
   useEffect(() => {
@@ -28,19 +29,63 @@ export default function TaskForm({ boardId, onCreated }) {
 
     const { data: { user } } = await supabase.auth.getUser();
 
-    const { error } = await supabase.from('tasks').insert([{
-      title: title.trim(),
-      description: description.trim() || null,
-      status,
-      priority,
-      board_id: boardId,
-      category_id: categoryId || null,
-      due_date: dueDate || null,
-      created_by: user.id,
-    }]);
+    const { data: task, error } = await supabase
+      .from('tasks')
+      .insert([{
+        title: title.trim(),
+        description: description.trim() || null,
+        status,
+        priority,
+        board_id: boardId,
+        category_id: categoryId || null,
+        due_date: dueDate || null,
+        created_by: user.id,
+      }])
+      .select()
+      .single();
 
     setLoading(false);
-    if (error) { setError(error.message); return; }
+    if (error) {
+      setError(error.message);
+      return;
+    } 
+
+    // gestion des tags
+    if (tags.trim()) {
+      const tagList = tags.split(',').map(t => t.trim()).filter(Boolean);
+
+      for (const tagName of tagList) {
+
+        // 1. créer le tag s'il n'existe pas
+        let { data: existingTag } = await supabase
+          .from('tags')
+          .select('*')
+          .eq('name', tagName)
+          .maybeSingle();
+
+        let tagId;
+
+        if (!existingTag) {
+          const { data: newTag } = await supabase
+            .from('tags')
+            .insert([{ name: tagName }])
+            .select()
+            .single();
+
+          tagId = newTag.id;
+        } else {
+          tagId = existingTag.id;
+        }
+
+        // 2. relier task ↔ tag
+        await supabase
+          .from('task_tags')
+          .insert([{
+            task_id: task.id,
+            tag_id: tagId
+          }]);
+      }
+    }
 
     // Envoi d'email si une échéance est définie
     if (dueDate) {
@@ -114,6 +159,16 @@ export default function TaskForm({ boardId, onCreated }) {
           <label style={labelStyle}>Échéance</label>
           <input type='date' value={dueDate} onChange={e => setDueDate(e.target.value)} style={inputStyle} />
         </div>
+      </div>
+      <div>
+        <label style={labelStyle}>Tags (séparés par virgule)</label>
+        <input
+          type="text"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          placeholder="ex: urgent, bug, dev"
+          style={inputStyle}
+        />
       </div>
       
       <button type='submit' disabled={loading} style={{ background: '#1A8C82', color: 'white', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.95rem' }}>

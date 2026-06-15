@@ -12,11 +12,24 @@ export default function TaskList({ boardId }) {
     setLoading(true);
     const { data, error } = await supabase
       .from('tasks')
-      .select('*, categories(*)') // jointure automatique !
+      .select(`
+        *,
+        categories(*),
+        task_tags(
+          tags(*)
+        )
+      `)
       .eq('board_id', boardId)
       .order('created_at', { ascending: false });
       
-    if (!error) setTasks(data || []);
+    if (!error) {
+      const formattedTasks = (data || []).map(task => ({
+        ...task,
+        tags: task.task_tags?.map(tt => tt.tags?.name).filter(Boolean) || []
+      }));
+
+      setTasks(formattedTasks);
+    }
     setLoading(false);
   }
 

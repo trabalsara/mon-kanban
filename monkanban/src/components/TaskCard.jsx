@@ -77,6 +77,25 @@ export default function TaskCard({ task, onDelete }) {
             🏷 {task.categories.name}
           </span>
         )}
+
+        {/* TAGS (fonctionnalité libre) */}
+        {task.tags && task.tags.length > 0 && (
+          task.tags.map((tag, index) => (
+            <span
+              key={index}
+              style={{
+                fontSize: '0.75rem',
+                padding: '0.2rem 0.5rem',
+                borderRadius: '999px',
+                background: '#E0F2FE',
+                color: '#0369A1',
+                fontWeight: 600
+              }}
+            >
+              # {tag}
+            </span>
+          ))
+        )}
         
         {/* Date d'échéance */}
         {dueLabel && (
